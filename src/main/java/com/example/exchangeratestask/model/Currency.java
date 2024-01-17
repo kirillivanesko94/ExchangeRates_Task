@@ -1,13 +1,20 @@
 package com.example.exchangeratestask.model;
 
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Currency {
     private String ID;
+    @Id
     private String NumCode;
     private String CharCode;
     private int Nominal;
     private String Name;
     private double Value;
     private double Previous;
+
 
     public String getID() {
         return ID;
