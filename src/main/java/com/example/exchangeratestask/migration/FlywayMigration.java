@@ -21,6 +21,6 @@ public class FlywayMigration implements DbMigration {
         config.setTable("schema_version");
         config.setDataSource(dataSource);
 
-        new Flyway(config).migrate();
+         new Flyway(config).migrate();
     }
 }

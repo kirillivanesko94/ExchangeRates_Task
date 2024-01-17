@@ -21,6 +21,8 @@ dependencies {
     implementation("org.jdbi:jdbi3-core:3.41.3")
     implementation("org.jdbi:jdbi3-postgres:3.41.3")
     implementation("org.flywaydb:flyway-core:8.5.11")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
