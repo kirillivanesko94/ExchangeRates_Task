@@ -1,74 +1,93 @@
 package com.example.exchangeratestask.model;
 
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
+@Table(name = "exchange_rate")
 public class Currency {
-    private String ID;
+    @Column(name = "id")
+    @NotNull
+    private String id;
     @Id
-    private String NumCode;
-    private String CharCode;
-    private int Nominal;
-    private String Name;
-    private double Value;
-    private double Previous;
+    @Column(name = "num_code")
+    private String numCode;
+    @Column(name = "char_code")
+    @NotNull
+    private String charCode;
+    @Column(name = "nominal")
+    @NotNull
+    private int nominal;
+    @Column(name = "name")
+    @NotNull
+    private String name;
+    @Column(name = "value_rate")
+    @NotNull
+    private double value;
+    @Column(name = "previous")
+    @NotNull
+    private double previous;
 
-
-    public String getID() {
-        return ID;
+    public Currency() {
     }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNumCode() {
-        return NumCode;
+        return numCode;
     }
 
     public void setNumCode(String numCode) {
-        NumCode = numCode;
+        this.numCode = numCode;
     }
 
     public String getCharCode() {
-        return CharCode;
+        return charCode;
     }
 
     public void setCharCode(String charCode) {
-        CharCode = charCode;
+        this.charCode = charCode;
     }
 
     public int getNominal() {
-        return Nominal;
+        return nominal;
     }
 
     public void setNominal(int nominal) {
-        Nominal = nominal;
+        this.nominal = nominal;
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public double getValue() {
-        return Value;
+        return value;
     }
 
     public void setValue(double value) {
-        Value = value;
+        this.value = value;
     }
 
     public double getPrevious() {
-        return Previous;
+        return previous;
     }
 
     public void setPrevious(double previous) {
-        Previous = previous;
+        this.previous = previous;
     }
 }
