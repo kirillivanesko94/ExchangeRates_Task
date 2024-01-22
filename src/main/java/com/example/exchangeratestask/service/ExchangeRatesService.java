@@ -60,18 +60,13 @@ public class ExchangeRatesService {
         JSONObject jsonObject = new JSONObject(result.toString());
         return jsonObject.toString();
     }
-
-    public CurrencyDto findCurrencyRate(String rate) {
-        Map<String, CurrencyDto> result = parseJsonToMap();
-        return result.get(rate);
-    }
     public void saveCurrencyRates() {
         Map<String, CurrencyDto> currencyMap = parseJsonToMap();
 
         for (CurrencyDto currencyDto : currencyMap.values()) {
 
             Currency currency = new Currency();
-            currency.setID(currencyDto.getID());
+            currency.setId(currencyDto.getID());
             currency.setName(currencyDto.getName());
             currency.setNominal(currencyDto.getNominal());
             currency.setPrevious(currencyDto.getPrevious());
@@ -81,5 +76,8 @@ public class ExchangeRatesService {
 
             repository.save(currency);
         }
+    }
+    public Currency findCurrencyByNumCode(String numCode) {
+        return repository.findById(numCode).get();
     }
 }

@@ -23,10 +23,9 @@ public class ExchangeRatesController {
         return service.parseJsonToMap();
     }
 
-    @GetMapping("{rate}")
-    CurrencyDto findRate(@PathVariable String rate) throws IOException {
-
-        return service.findCurrencyRate(rate);
+    @GetMapping("{num_code}")
+    Currency findRate(@PathVariable("num_code") String numCode) {
+        return service.findCurrencyByNumCode(numCode);
     }
 
     @PostMapping("save")
