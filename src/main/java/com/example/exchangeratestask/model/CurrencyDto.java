@@ -2,8 +2,6 @@ package com.example.exchangeratestask.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Id;
-
 public class CurrencyDto {
     @JsonProperty("ID")
     private String ID;

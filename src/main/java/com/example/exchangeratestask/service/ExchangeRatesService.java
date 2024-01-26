@@ -5,12 +5,15 @@ import com.example.exchangeratestask.model.CurrencyDto;
 import com.example.exchangeratestask.repositories.CurrencyRepository;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.sauronsoftware.cron4j.Scheduler;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -19,6 +22,7 @@ import java.util.Scanner;
 @Service
 public class ExchangeRatesService {
     private final String URL_RESOURCE = "https://www.cbr-xml-daily.ru/daily_json.js";
+    private final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private final CurrencyRepository repository;
 
     public ExchangeRatesService(CurrencyRepository repository) {
@@ -62,6 +66,7 @@ public class ExchangeRatesService {
     }
     public void saveCurrencyRates() {
         Map<String, CurrencyDto> currencyMap = parseJsonToMap();
+        Scheduler scheduler = new Scheduler();
 
         for (CurrencyDto currencyDto : currencyMap.values()) {
 
@@ -73,11 +78,24 @@ public class ExchangeRatesService {
             currency.setValue(currencyDto.getValue());
             currency.setCharCode(currencyDto.getCharCode());
             currency.setNumCode(currencyDto.getNumCode());
+            currency.setDate(LocalDate.now().format(FORMATTER));
 
             repository.save(currency);
+
+            scheduler.schedule("0 9 * * *", new Runnable() {
+                @Override
+                public void run() {
+                    saveCurrencyRates();
+                }
+            });
+            scheduler.start();
         }
     }
-    public Currency findCurrencyByNumCode(String numCode) {
-        return repository.findById(numCode).get();
+    public Currency findCurrencyByNumCode(String numCode, String date) {
+        return repository.findCurrencyByNumCodeAndDate(numCode,date);
+    }
+    public String convertRoubleInCurrency(String numCode, String date, Long countRouble) {
+        Currency currency = findCurrencyByNumCode(numCode, date);
+        return String.format("Количество рублей: %s Количество валюты: %s", countRouble, countRouble / currency.getValue());
     }
 }

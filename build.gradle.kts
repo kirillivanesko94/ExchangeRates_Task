@@ -23,6 +23,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:8.5.11")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.0")
+    implementation("it.sauronsoftware.cron4j:cron4j:2.2.5")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
