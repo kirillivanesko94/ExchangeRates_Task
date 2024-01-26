@@ -31,6 +31,9 @@ public class Currency {
     @Column(name = "previous")
     @NotNull
     private double previous;
+    @Column(name = "dates")
+    @NotNull
+    private String date;
 
     public Currency() {
     }
@@ -89,5 +92,13 @@ public class Currency {
 
     public void setPrevious(double previous) {
         this.previous = previous;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

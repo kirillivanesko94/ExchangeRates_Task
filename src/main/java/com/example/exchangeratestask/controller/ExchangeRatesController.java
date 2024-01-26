@@ -6,7 +6,6 @@ import com.example.exchangeratestask.service.ExchangeRatesService;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,13 +22,20 @@ public class ExchangeRatesController {
         return service.parseJsonToMap();
     }
 
-    @GetMapping("{num_code}")
-    Currency findRate(@PathVariable("num_code") String numCode) {
-        return service.findCurrencyByNumCode(numCode);
+    @GetMapping("{num_code}/{date}")
+    Currency findRate(@PathVariable("num_code") String numCode, @PathVariable("date") String date) {
+        return service.findCurrencyByNumCode(numCode, date);
+    }
+    @GetMapping("convert-rouble-in-rate/{num_code}/{date}/{countOfRouble}")
+    String convertRoubleInRate(@PathVariable("num_code") String numCode,
+                               @PathVariable("date") String date,
+                               @PathVariable("countOfRouble") Long countOfRouble) {
+        return service.convertRoubleInCurrency(numCode, date, countOfRouble);
     }
 
     @PostMapping("save")
     void save() {
         service.saveCurrencyRates();
     }
+
 }
