@@ -1,12 +1,8 @@
 package com.example.exchangeratestask.controller;
 
 import com.example.exchangeratestask.model.Currency;
-import com.example.exchangeratestask.model.CurrencyDto;
 import com.example.exchangeratestask.service.ExchangeRatesService;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.util.Map;
 
 @RestController
 @RequestMapping("exchange-rates")
@@ -15,11 +11,6 @@ public class ExchangeRatesController {
 
     public ExchangeRatesController(ExchangeRatesService service) {
         this.service = service;
-    }
-
-    @GetMapping("get-all-rates")
-    Map<String, CurrencyDto> getCurrencyRate() throws IOException {
-        return service.parseJsonToMap();
     }
 
     @GetMapping("{num_code}/{date}")

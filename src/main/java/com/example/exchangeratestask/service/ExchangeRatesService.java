@@ -3,21 +3,20 @@ package com.example.exchangeratestask.service;
 import com.example.exchangeratestask.model.Currency;
 import com.example.exchangeratestask.model.CurrencyDto;
 import com.example.exchangeratestask.repositories.CurrencyRepository;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.sauronsoftware.cron4j.Scheduler;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.stream.Collectors;
 
 @Service
 public class ExchangeRatesService {
@@ -29,59 +28,49 @@ public class ExchangeRatesService {
         this.repository = repository;
     }
 
-    public HashMap<String, CurrencyDto> parseJsonToMap() {
+    private HttpURLConnection openConnection(String url) throws IOException {
+        URL urlObject = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
+        connection.setRequestMethod("GET");
+        connection.connect();
+        return connection;
+    }
+
+    private String getJson() throws IOException {
+        HttpURLConnection connection = openConnection(URL_RESOURCE);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            return reader.lines().collect(Collectors.joining());
+        }
+    }
+
+    public void saveCurrencyRates() {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-            JSONObject jsonObject = new JSONObject(getJson());
+            String json = getJson();
+            JSONObject jsonObject = new JSONObject(json);
             JSONObject valuteJson = jsonObject.getJSONObject("Valute");
+            ObjectMapper objectMapper = new ObjectMapper();
 
-            HashMap<String, CurrencyDto> currencyMap = new HashMap<>();
             Iterator<String> keys = valuteJson.keys();
-
             while (keys.hasNext()) {
                 String key = keys.next();
                 JSONObject currencyJson = valuteJson.getJSONObject(key);
 
                 CurrencyDto currencyDto = objectMapper.readValue(currencyJson.toString(), CurrencyDto.class);
-                currencyMap.put(key, currencyDto);
+
+                Currency currency = new Currency();
+                currency.setId(currencyDto.getID());
+                currency.setName(currencyDto.getName());
+                currency.setNominal(currencyDto.getNominal());
+                currency.setPrevious(currencyDto.getPrevious());
+                currency.setValue(currencyDto.getValue());
+                currency.setCharCode(currencyDto.getCharCode());
+                currency.setNumCode(currencyDto.getNumCode());
+                currency.setDate(LocalDate.now().format(FORMATTER));
+
+                repository.save(currency);
             }
 
-            return currencyMap;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String getJson() throws IOException {
-        URL url = new URL(URL_RESOURCE);
-        Scanner scanner = new Scanner((InputStream) url.getContent());
-        StringBuilder result = new StringBuilder();
-        while (scanner.hasNext()) {
-            result.append(scanner.nextLine());
-        }
-        JSONObject jsonObject = new JSONObject(result.toString());
-        return jsonObject.toString();
-    }
-    public void saveCurrencyRates() {
-        Map<String, CurrencyDto> currencyMap = parseJsonToMap();
-        Scheduler scheduler = new Scheduler();
-
-        for (CurrencyDto currencyDto : currencyMap.values()) {
-
-            Currency currency = new Currency();
-            currency.setId(currencyDto.getID());
-            currency.setName(currencyDto.getName());
-            currency.setNominal(currencyDto.getNominal());
-            currency.setPrevious(currencyDto.getPrevious());
-            currency.setValue(currencyDto.getValue());
-            currency.setCharCode(currencyDto.getCharCode());
-            currency.setNumCode(currencyDto.getNumCode());
-            currency.setDate(LocalDate.now().format(FORMATTER));
-
-            repository.save(currency);
-
+            Scheduler scheduler = new Scheduler();
             scheduler.schedule("0 9 * * *", new Runnable() {
                 @Override
                 public void run() {
@@ -89,13 +78,16 @@ public class ExchangeRatesService {
                 }
             });
             scheduler.start();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
+
     public Currency findCurrencyByNumCode(String numCode, String date) {
         return repository.findCurrencyByNumCodeAndDate(numCode,date);
     }
     public String convertRoubleInCurrency(String numCode, String date, Long countRouble) {
         Currency currency = findCurrencyByNumCode(numCode, date);
-        return String.format("Количество рублей: %s Количество валюты: %s", countRouble, countRouble / currency.getValue());
+        return String.format("Количество рублей: %s Количество валюты: %.2f", countRouble, countRouble / currency.getValue());
     }
 }
