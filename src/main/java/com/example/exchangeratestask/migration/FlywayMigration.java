@@ -6,6 +6,9 @@ import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
+/**
+ * This class describes the migration rules for the database
+ */
 public class FlywayMigration implements DbMigration {
     private final DataSource dataSource;
 
@@ -13,6 +16,9 @@ public class FlywayMigration implements DbMigration {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Method to initiate the database migration using Flyway.
+     */
     @Override
     @PostConstruct
     public void migrate() {

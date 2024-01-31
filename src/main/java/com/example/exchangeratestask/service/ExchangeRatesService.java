@@ -1,5 +1,6 @@
 package com.example.exchangeratestask.service;
 
+import com.example.exchangeratestask.exception.CurrencyNotFoundException;
 import com.example.exchangeratestask.model.Currency;
 import com.example.exchangeratestask.model.CurrencyDto;
 import com.example.exchangeratestask.repositories.CurrencyRepository;
@@ -18,6 +19,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 
+/**
+ * This class is responsible for the business logic of the application
+ */
 @Service
 public class ExchangeRatesService {
     private final String URL_RESOURCE = "https://www.cbr-xml-daily.ru/daily_json.js";
@@ -28,6 +32,12 @@ public class ExchangeRatesService {
         this.repository = repository;
     }
 
+    /**
+     * This method opens a connection to a resource to receive data
+     * @param url Resource address
+     * @return connection
+     * @throws IOException default exception
+     */
     private HttpURLConnection openConnection(String url) throws IOException {
         URL urlObject = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
@@ -36,12 +46,22 @@ public class ExchangeRatesService {
         return connection;
     }
 
+    /**
+     * A method for getting a String variable from a data stream
+     * @return The string received from the data stream
+     * @throws IOException default exception
+     */
+
     private String getJson() throws IOException {
         HttpURLConnection connection = openConnection(URL_RESOURCE);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             return reader.lines().collect(Collectors.joining());
         }
     }
+
+    /**
+     * A method for parsing data into an entity object and writing to a database
+     */
 
     public void saveCurrencyRates() {
         try {
@@ -83,9 +103,27 @@ public class ExchangeRatesService {
         }
     }
 
+    /**
+     * The method for obtaining the exchange rate
+     * @param numCode the required date
+     * @param date the required date
+     * @return {@link java.util.Currency}
+     */
     public Currency findCurrencyByNumCode(String numCode, String date) {
-        return repository.findCurrencyByNumCodeAndDate(numCode,date);
+        Currency currency = repository.findCurrencyByNumCodeAndDate(numCode, date);
+        if (currency == null){
+            throw new CurrencyNotFoundException(numCode);
+        }
+        return currency;
     }
+
+    /**
+     * The method for converting the ruble into a currency
+     * @param numCode the required date
+     * @param date the required date
+     * @param countRouble The number of rubles required to convert into currency
+     * @return A string containing information about the amount of rouble and currency
+     */
     public String convertRoubleInCurrency(String numCode, String date, Long countRouble) {
         Currency currency = findCurrencyByNumCode(numCode, date);
         return String.format("Количество рублей: %s Количество валюты: %.2f", countRouble, countRouble / currency.getValue());

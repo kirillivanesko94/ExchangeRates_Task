@@ -10,14 +10,27 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
+/**
+ * This class is responsible for the configuration of the database
+ */
 @Configuration
 public class DatabaseConfiguration {
+    /**
+     * Bean to configure the database properties.
+     *
+     * @return the DBConfig object with the configured properties
+     */
     @Bean
     @ConfigurationProperties("db")
     public DBConfig dbConfig() {
         return new DBConfig();
     }
-
+    /**
+     * Bean to create the DataSource using the configured properties.
+     *
+     * @param config the DBConfig object with the database properties
+     * @return the created DataSource
+     */
     @Bean
     public DataSource dataSource(DBConfig config) {
         HikariConfig hikariConfig = new HikariConfig();
@@ -35,6 +48,12 @@ public class DatabaseConfiguration {
 
         return new HikariDataSource(hikariConfig);
     }
+    /**
+     * Bean to create the database migration instance.
+     *
+     * @param dataSource the DataSource to be used for the migration
+     * @return the DbMigration implementation, using FlywayMigration
+     */
     @Bean
     public DbMigration dbMigration(DataSource dataSource) {
         return new FlywayMigration(dataSource);

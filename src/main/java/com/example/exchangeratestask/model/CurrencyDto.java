@@ -2,6 +2,9 @@ package com.example.exchangeratestask.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * This class describes the DTO for further parsing from json format to entity
+ */
 public class CurrencyDto {
     @JsonProperty("ID")
     private String ID;

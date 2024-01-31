@@ -1,5 +1,8 @@
 package com.example.exchangeratestask.configuration;
 
+/**
+ * POJO class for transferring data during database configuration
+ */
 public class DBConfig {
     private String jdbcUrl;
     private String username;

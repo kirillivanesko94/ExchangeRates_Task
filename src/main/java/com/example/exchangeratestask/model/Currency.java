@@ -7,6 +7,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+/**
+ * This class describes the Currency model for creating a table in a database
+ */
 @Entity
 @Table(name = "exchange_rate")
 public class Currency {
