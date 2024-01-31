@@ -1,8 +1,10 @@
 package com.example.exchangeratestask.service;
 
+import com.example.exchangeratestask.exception.CurrencyNotFoundException;
 import com.example.exchangeratestask.model.Currency;
 import com.example.exchangeratestask.repositories.CurrencyRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -13,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class ExchangeRatesServiceTest {
@@ -80,7 +83,7 @@ public class ExchangeRatesServiceTest {
     @ParameterizedTest
     @MethodSource("getCurrencyNumCodeAndDate")
     void testFindCurrency(String numCode, String date, Currency expected) {
-        when(service.findCurrencyByNumCode(anyString(), anyString())).thenReturn(expected);
+        when(currencyRepository.findCurrencyByNumCodeAndDate(anyString(), anyString())).thenReturn(expected);
 
         Currency result = service.findCurrencyByNumCode(numCode, date);
 
@@ -96,10 +99,20 @@ public class ExchangeRatesServiceTest {
         );
     }
 
+    @Test
+    void testFindCurrencyWithException() {
+        when(currencyRepository.findCurrencyByNumCodeAndDate(anyString(), anyString())).thenReturn(null);
+
+        assertThrows(CurrencyNotFoundException.class, () -> {
+            service.findCurrencyByNumCode("1", "2");
+        });
+    }
+
+
     @ParameterizedTest
     @MethodSource("getArguments")
     void testConvertRoubleInCurrency(String numCode, String date, Currency currency, String expected) {
-        when(service.findCurrencyByNumCode(numCode, date)).thenReturn(currency);
+        when(currencyRepository.findCurrencyByNumCodeAndDate(numCode, date)).thenReturn(currency);
 
         String result = service.convertRoubleInCurrency(numCode, date, 10000L);
 
